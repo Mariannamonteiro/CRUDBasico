@@ -16,5 +16,10 @@ namespace CRUD.Basico
         {
             InitializeComponent();
         }
+
+        private void BtnCadastrar_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
