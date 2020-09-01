@@ -1,0 +1,10 @@
+CREATE PROCEDURE SP_InsereAluno
+	@nome VARCHAR(200),
+	@dtNasci DATETIME,
+	@ativo BIT
+AS
+BEGIN
+	INSERT INTO Aluno
+	VALUES(@nome,@dtNasci,@ativo)
+	SELECT SCOPE_IDENTITY()
+END
