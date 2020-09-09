@@ -20,7 +20,17 @@ namespace CRUD.Basico
         public FrmPrincipal()
         {
             InitializeComponent();
-            _alunos = new Aluno().ObterAlunos();
+            try
+            {
+                _alunos = new Aluno().ObterAlunos();
+            }
+            catch (Exception ex )
+            {
+
+                MessageBox.Show(ex.Message);
+            }
+            
+
         }
 
         private void ConfigurarDgvAluno()
@@ -39,27 +49,16 @@ namespace CRUD.Basico
         private void CarregaDgvAluno()
         {
             DgvAlunos.Rows.Clear();
+
+            // Ordenando a lista de alunos pelo nome(ordem alfabética)
+            _alunos = _alunos.OrderBy(a => a.Nome).ToList();
             foreach (Aluno aluno in _alunos)
             {
                 DgvAlunos.Rows.Add(aluno.Id,aluno.Nome, aluno.DtNascimento.ToString("dd/MM/yyyy"));
             }
         }
 
-        private void BtnCadastrar_Click(object sender, EventArgs e)
-        {
-           
-            try
-            {
-                Aluno novoAluno = new Aluno(TxbNome.Text, DtpDtNascimento.Value, CkbAtivo.Checked);
-                novoAluno.Cadastrar();
-                MessageBox.Show($"Aluno cadastrado com sucesso:\n {novoAluno.Nome}\nId inserido pelo banco: {novoAluno.Id}");
-            }
-            catch (Exception ex )
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
+      
         private void FrmPrincipal_Load(object sender, EventArgs e)
         {
             try
@@ -164,6 +163,10 @@ namespace CRUD.Basico
                 {
                     Aluno novoAluno = new Aluno(TxbNome.Text, DtpDtNascimento.Value, CkbAtivo.Checked);
                     novoAluno.Cadastrar();
+                    _alunos.Add(novoAluno);
+                    CarregaDgvAluno();
+                    ConfiguraBotoesECampos(1);
+               
                     MessageBox.Show($"Aluno cadastrado com sucesso:\n {novoAluno.Nome}\nId inserido pelo banco: {novoAluno.Id}");
                 }
                 catch (Exception ex)
@@ -174,9 +177,45 @@ namespace CRUD.Basico
             }
             else
             {
+                //Remover o aluno selecionado da lista de alunos 
+                _alunos.Remove(_alunoSelecionado);
                 //Alterar um aluno existente 
+                _alunoSelecionado.Nome = TxbNome.Text;
+                _alunoSelecionado.DtNascimento = DtpDtNascimento.Value;
+                _alunoSelecionado.Ativo = CkbAtivo.Checked;
+                try
+                {
+                    string retornoBD = _alunoSelecionado.Atualizar();
+                    _alunos.Add(_alunoSelecionado);
+                    CarregaDgvAluno();
+                    ConfiguraBotoesECampos(1);
+                    MessageBox.Show(retornoBD);
+                }
+                catch (Exception ex)
+                {
+
+                    MessageBox.Show(ex.Message);
+                }
+               
             }
 
+        }
+
+        private void TsbExcluir_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string retornoBD = _alunoSelecionado.Excluir();
+                _alunos.Remove(_alunoSelecionado);
+                CarregaDgvAluno();
+                ConfiguraBotoesECampos(1);
+                MessageBox.Show(retornoBD);
+            }
+            catch (Exception ex)
+            {
+
+                MessageBox.Show(ex.Message);
+            } 
         }
     }
 }
